@@ -1,0 +1,346 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>aggregator: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/hanswang/clv/internal/aggregator/aggregate.go (100.0%)</option>
+				
+				<option value="file1">github.com/hanswang/clv/internal/parser/parse.go (100.0%)</option>
+				
+				<option value="file2">github.com/hanswang/clv/internal/processor/processor.go (100.0%)</option>
+				
+				<option value="file3">github.com/hanswang/clv/internal/processor/viewgen.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package aggregator
+
+//go:generate mockgen -destination=../mocks/mock_aggregator.go -package=mocks github.com/hanswang/clv/internal/aggregator AggregatorManager
+
+import (
+        "time"
+
+        "github.com/hanswang/clv/internal/types"
+        log "github.com/sirupsen/logrus"
+)
+
+type Aggregator struct {
+}
+
+type AggregatorManager interface {
+        GenerateReport(entities *map[string]types.Entity) []*types.Report
+}
+
+func dfsAggregateChildren(root *types.Report, entities *map[string][]types.Entity) <span class="cov8" title="1">{
+        children, ok := (*entities)[root.Name]
+        if !ok </span><span class="cov8" title="1">{
+                return
+        }</span>
+        <span class="cov8" title="1">for _, entity := range children </span><span class="cov8" title="1">{
+                report := &amp;types.Report{
+                        Name: entity.Name,
+                        Entries: []string{entity.Name},
+                        Allocation: entity.Limit,
+                        DirectUsage: entity.Utilised,
+                        Usage: entity.Utilised,
+                }
+                dfsAggregateChildren(report, entities)
+
+                root.Entries = append(root.Entries, report.Entries...)
+                root.Usage += report.Usage
+                root.SubTotalLimit += report.SubTotalLimit + report.Allocation
+                root.SubReports = append(root.SubReports, report)
+        }</span>
+
+}
+
+func (a *Aggregator) GenerateReport(entities *map[string]types.Entity) []*types.Report <span class="cov8" title="1">{
+        log.Debug("Start aggregating")
+        start := time.Now()
+        reps := []*types.Report{}
+        chdEntities := map[string][]types.Entity{}
+        
+        // find lead node &amp; reverse child -&gt; parent relation entity to parent -&gt; children relation entity
+        for name, entity := range *entities </span><span class="cov8" title="1">{
+                if entity.Parent == nil </span><span class="cov8" title="1">{
+                        r := &amp;types.Report{
+                                Name: entity.Name,
+                                Entries: []string{entity.Name},
+                                Allocation: entity.Limit,
+                                DirectUsage: entity.Utilised,
+                                Usage: entity.Utilised,
+                        }
+                        reps = append(reps, r)
+                        delete(*entities, name)
+                }</span> else<span class="cov8" title="1"> {
+                        chdEntities[*entity.Parent] = append(chdEntities[*entity.Parent], entity)
+                        delete(*entities, name)
+                }</span>
+        }
+
+        <span class="cov8" title="1">for _, lead := range reps </span><span class="cov8" title="1">{
+                dfsAggregateChildren(lead, &amp;chdEntities)
+        }</span>
+
+        <span class="cov8" title="1">log.Debugf("Done aggregating - took %s", time.Since(start))
+        return reps</span>
+}</pre>
+		
+		<pre class="file" id="file1" style="display: none">package parser
+
+//go:generate mockgen -destination=../mocks/mock_parser.go -package=mocks github.com/hanswang/clv/internal/parser ParserManager
+
+import (
+        "fmt"
+        "strconv"
+        "strings"
+        "time"
+
+        "github.com/hanswang/clv/internal/types"
+        log "github.com/sirupsen/logrus"
+)
+
+type Parser struct {
+}
+
+type ParserManager interface {
+        ParseCSV(rows []string) (*map[string]types.Entity, error)
+}
+
+const colume_count = 4
+
+func (p *Parser) ParseCSV(rows []string) (*map[string]types.Entity, error) <span class="cov8" title="1">{
+        log.Debug("Start input parsing")
+        start := time.Now()
+        entities := make(map[string]types.Entity, len(rows))
+        
+        // assume valid csv passed in - header removed
+        for _, r := range rows </span><span class="cov8" title="1">{
+                cols := strings.Split(r, ",")
+                if len(cols) != colume_count </span><span class="cov8" title="1">{
+                        return nil, fmt.Errorf("found mismatch pattern for csv row: %v", r)
+                }</span>
+
+                <span class="cov8" title="1">limit, e := strconv.Atoi(cols[2])
+                if e != nil </span><span class="cov8" title="1">{
+                        return nil, fmt.Errorf("found non-numeric value in limit col for row %v: %w", r, e)
+                }</span>
+                <span class="cov8" title="1">utilised, e := strconv.Atoi(cols[3])
+                if e != nil </span><span class="cov8" title="1">{
+                        return nil, fmt.Errorf("found non-numeric value in utilised col for row %v: %w", r, e)
+                }</span>
+
+                <span class="cov8" title="1">entity := types.Entity{
+                        Name: cols[0],
+                        Limit: limit,
+                        Utilised: utilised,
+                }
+
+                if len(cols[1]) != 0 </span><span class="cov8" title="1">{
+                        entity.Parent = &amp;cols[1]
+                }</span>
+                <span class="cov8" title="1">entities[cols[0]] = entity</span>
+        }
+
+        <span class="cov8" title="1">for _, ent := range entities </span><span class="cov8" title="1">{
+                if ent.Parent == nil </span><span class="cov8" title="1">{
+                        continue</span>
+                }
+                <span class="cov8" title="1">p := *ent.Parent
+                if _, ok := entities[p]; !ok </span><span class="cov8" title="1">{
+                        return nil, fmt.Errorf("found entity pointing to non-existent parent: %v -&gt; %v", ent.Name, p)
+                }</span>
+        }
+
+        <span class="cov8" title="1">log.Debugf("Done CSV parsing - took %s", time.Since(start))
+        return &amp;entities, nil</span>
+}</pre>
+		
+		<pre class="file" id="file2" style="display: none">package processor
+
+import (
+        "fmt"
+        "strings"
+
+        "github.com/hanswang/clv/internal/aggregator"
+        "github.com/hanswang/clv/internal/parser"
+)
+
+type Processor struct {
+        Parser     parser.ParserManager
+        Aggregator aggregator.AggregatorManager
+}
+
+func NewProcessor(parser parser.ParserManager, aggregator aggregator.AggregatorManager) *Processor <span class="cov8" title="1">{
+        return &amp;Processor{
+                Parser: parser,
+                Aggregator: aggregator,
+        }
+}</span>
+
+func (p *Processor) Run(body []byte) error <span class="cov8" title="1">{
+        rows := strings.Split(string(body), "\n")
+        if len(rows) &lt; 2 </span><span class="cov8" title="1">{
+                return fmt.Errorf("CSV file has no content excluding header with row count: %d", len(rows))
+        }</span>
+        <span class="cov8" title="1">_, rows = rows[0], rows[1:]
+
+        entities, err := p.Parser.ParseCSV(rows)
+        if err != nil </span><span class="cov8" title="1">{
+                return fmt.Errorf("CSV parse error: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">analyses := p.Aggregator.GenerateReport(entities)
+
+        ViewGenerate(analyses)
+
+        return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package processor
+
+import (
+        "fmt"
+        "io"
+        "os"
+        "strings"
+
+        "github.com/hanswang/clv/internal/types"
+)
+
+var Out io.Writer = os.Stdout
+
+func dfsRenderReportBreakdown(report *types.Report) bool <span class="cov8" title="1">{
+        breached := false
+        if (report.Allocation &lt; report.Usage) </span><span class="cov8" title="1">{
+                breached = true
+                fmt.Fprintf(
+                        Out,
+                        "  Limit breach at %v (limit = %d, direct utilisation = %d, combined utilisation = %d).\n",
+                        report.Name, report.Allocation, report.DirectUsage, report.Usage,
+                )
+        }</span>
+        <span class="cov8" title="1">if (report.Allocation &lt; report.SubTotalLimit) </span><span class="cov8" title="1">{
+                fmt.Fprintf(
+                        Out,
+                        "  Warning for limit at %v (limit = %d, combined sub-entity limit = %d).\n",
+                        report.Name, report.Allocation, report.SubTotalLimit,
+                )
+        }</span>
+
+        <span class="cov8" title="1">for _, subReport := range report.SubReports </span><span class="cov8" title="1">{
+                subBreach := dfsRenderReportBreakdown(subReport)
+                if subBreach </span><span class="cov8" title="1">{
+                        breached = true
+                }</span>
+        }
+
+        <span class="cov8" title="1">return breached</span>
+}
+
+func ViewGenerate(reports []*types.Report) <span class="cov8" title="1">{
+        for i, report := range reports </span><span class="cov8" title="1">{
+                fmt.Fprintf(Out, "Entities: %v:\n", strings.Join(report.Entries, ","))
+                breached := dfsRenderReportBreakdown(report)
+                if (!breached) </span><span class="cov8" title="1">{
+                        fmt.Fprintf(Out, "  No limit breaches\n")
+                }</span>
+                <span class="cov8" title="1">if i != len(reports) -1 </span><span class="cov8" title="1">{
+                        fmt.Fprintln(Out)
+                }</span>
+        }
+}</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

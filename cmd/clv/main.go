@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/hanswang/clv/internal/aggregator"
+	"github.com/hanswang/clv/internal/parser"
 	"github.com/hanswang/clv/internal/processor"
 	log "github.com/sirupsen/logrus"
 )
@@ -27,13 +29,13 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	exist, err := Exists(filename)
+	exist, err := fileExists(filename)
 	if exist {
 		csvBody, err := ioutil.ReadFile(filename)
 		if err != nil {
 			die("clv: read file %v with error: %w, abort", filename, err)
 		}
-		processor.Run(csvBody)
+		processor.NewProcessor(&parser.Parser{}, &aggregator.Aggregator{}).Run(csvBody)
 	} else if err != nil {
 		die("clv: check file %v with error: %w, abort", filename, err)
 	} else {
@@ -49,7 +51,7 @@ func die(format string, args ...interface{}) {
 	os.Exit(0)
 }
 
-func Exists(name string) (bool, error) {
+func fileExists(name string) (bool, error) {
     _, err := os.Stat(name)
     if err == nil {
         return true, nil

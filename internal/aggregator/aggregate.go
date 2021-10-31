@@ -1,5 +1,7 @@
 package aggregator
 
+//go:generate mockgen -destination=../mocks/mock_aggregator.go -package=mocks github.com/hanswang/clv/internal/aggregator AggregatorManager
+
 import (
 	"time"
 
@@ -12,10 +14,6 @@ type Aggregator struct {
 
 type AggregatorManager interface {
 	GenerateReport(entities *map[string]types.Entity) []*types.Report
-}
-
-func New() *Aggregator {
-	return &Aggregator{}
 }
 
 func dfsAggregateChildren(root *types.Report, entities *map[string][]types.Entity) {

@@ -1,5 +1,7 @@
 package parser
 
+//go:generate mockgen -destination=../mocks/mock_parser.go -package=mocks github.com/hanswang/clv/internal/parser ParserManager
+
 import (
 	"fmt"
 	"strconv"
@@ -15,10 +17,6 @@ type Parser struct {
 
 type ParserManager interface {
 	ParseCSV(rows []string) (*map[string]types.Entity, error)
-}
-
-func New() *Parser {
-	return &Parser{}
 }
 
 const colume_count = 4
