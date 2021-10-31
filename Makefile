@@ -12,4 +12,6 @@ generate:
 
 all: generate lint test
 
+build:
+	go build -o clv cmd/clv/main.go
 
