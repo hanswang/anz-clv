@@ -2,6 +2,9 @@
 
 A tool to validate credit limit hierarchies.
 
+### Demo ###
+![demo](https://github.com/hanswang/anz-clv/blob/master/clvdemo.gif)
+
 ### Makefile Command ###
 - `make build` build the binary output as `clv`
 - `make lint` format the source code
