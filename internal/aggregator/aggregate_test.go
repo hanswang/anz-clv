@@ -30,19 +30,19 @@ func TestAggregator_GenerateReport(t *testing.T) {
 			args: args{
 				entities: &map[string]types.Entity{
 					"a": {
-						Name: "a",
-						Limit: 10,
+						Name:     "a",
+						Limit:    10,
 						Utilised: 5,
 					},
 				},
 			},
 			want: []*types.Report{
 				{
-					Name: "a",
-					Entries: []string{"a"},
+					Name:        "a",
+					Entries:     []string{"a"},
 					DirectUsage: 5,
-					Usage: 5,
-					Allocation: 10,
+					Usage:       5,
+					Allocation:  10,
 				},
 			},
 		},
@@ -51,31 +51,31 @@ func TestAggregator_GenerateReport(t *testing.T) {
 			args: args{
 				entities: &map[string]types.Entity{
 					"a": {
-						Name: "a",
-						Limit: 10,
+						Name:     "a",
+						Limit:    10,
 						Utilised: 5,
 					},
 					"b": {
-						Name: "b",
-						Limit: 2,
+						Name:     "b",
+						Limit:    2,
 						Utilised: 4,
 					},
 				},
 			},
 			want: []*types.Report{
 				{
-					Name: "a",
-					Entries: []string{"a"},
+					Name:        "a",
+					Entries:     []string{"a"},
 					DirectUsage: 5,
-					Usage: 5,
-					Allocation: 10,
+					Usage:       5,
+					Allocation:  10,
 				},
 				{
-					Name: "b",
-					Entries: []string{"b"},
+					Name:        "b",
+					Entries:     []string{"b"},
 					DirectUsage: 4,
-					Usage: 4,
-					Allocation: 2,
+					Usage:       4,
+					Allocation:  2,
 				},
 			},
 		},
@@ -84,33 +84,33 @@ func TestAggregator_GenerateReport(t *testing.T) {
 			args: args{
 				entities: &map[string]types.Entity{
 					"a": {
-						Name: "a",
-						Limit: 10,
+						Name:     "a",
+						Limit:    10,
 						Utilised: 5,
 					},
 					"b": {
-						Name: "b",
-						Parent: &anchor,
-						Limit: 3,
+						Name:     "b",
+						Parent:   &anchor,
+						Limit:    3,
 						Utilised: 9,
 					},
 				},
 			},
 			want: []*types.Report{
 				{
-					Name: "a",
-					Entries: []string{"a", "b"},
-					DirectUsage: 5,
-					Usage: 14,
-					Allocation: 10,
+					Name:          "a",
+					Entries:       []string{"a", "b"},
+					DirectUsage:   5,
+					Usage:         14,
+					Allocation:    10,
 					SubTotalLimit: 3,
 					SubReports: []*types.Report{
 						{
-							Name: "b",
-							Entries: []string{"b"},
+							Name:        "b",
+							Entries:     []string{"b"},
 							DirectUsage: 9,
-							Usage: 9,
-							Allocation: 3,
+							Usage:       9,
+							Allocation:  3,
 						},
 					},
 				},

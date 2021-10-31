@@ -25,7 +25,7 @@ func (p *Parser) ParseCSV(rows []string) (*map[string]types.Entity, error) {
 	log.Debug("Start input parsing")
 	start := time.Now()
 	entities := make(map[string]types.Entity, len(rows))
-	
+
 	// assume valid csv passed in - header removed
 	for _, r := range rows {
 		cols := strings.Split(r, ",")
@@ -43,8 +43,8 @@ func (p *Parser) ParseCSV(rows []string) (*map[string]types.Entity, error) {
 		}
 
 		entity := types.Entity{
-			Name: cols[0],
-			Limit: limit,
+			Name:     cols[0],
+			Limit:    limit,
 			Utilised: utilised,
 		}
 

@@ -100,11 +100,11 @@ func dfsAggregateChildren(root *types.Report, entities *map[string][]types.Entit
         }</span>
         <span class="cov8" title="1">for _, entity := range children </span><span class="cov8" title="1">{
                 report := &amp;types.Report{
-                        Name: entity.Name,
-                        Entries: []string{entity.Name},
-                        Allocation: entity.Limit,
+                        Name:        entity.Name,
+                        Entries:     []string{entity.Name},
+                        Allocation:  entity.Limit,
                         DirectUsage: entity.Utilised,
-                        Usage: entity.Utilised,
+                        Usage:       entity.Utilised,
                 }
                 dfsAggregateChildren(report, entities)
 
@@ -121,16 +121,16 @@ func (a *Aggregator) GenerateReport(entities *map[string]types.Entity) []*types.
         start := time.Now()
         reps := []*types.Report{}
         chdEntities := map[string][]types.Entity{}
-        
+
         // find lead node &amp; reverse child -&gt; parent relation entity to parent -&gt; children relation entity
         for name, entity := range *entities </span><span class="cov8" title="1">{
                 if entity.Parent == nil </span><span class="cov8" title="1">{
                         r := &amp;types.Report{
-                                Name: entity.Name,
-                                Entries: []string{entity.Name},
-                                Allocation: entity.Limit,
+                                Name:        entity.Name,
+                                Entries:     []string{entity.Name},
+                                Allocation:  entity.Limit,
                                 DirectUsage: entity.Utilised,
-                                Usage: entity.Utilised,
+                                Usage:       entity.Utilised,
                         }
                         reps = append(reps, r)
                         delete(*entities, name)
@@ -146,7 +146,8 @@ func (a *Aggregator) GenerateReport(entities *map[string]types.Entity) []*types.
 
         <span class="cov8" title="1">log.Debugf("Done aggregating - took %s", time.Since(start))
         return reps</span>
-}</pre>
+}
+</pre>
 		
 		<pre class="file" id="file1" style="display: none">package parser
 
@@ -175,7 +176,7 @@ func (p *Parser) ParseCSV(rows []string) (*map[string]types.Entity, error) <span
         log.Debug("Start input parsing")
         start := time.Now()
         entities := make(map[string]types.Entity, len(rows))
-        
+
         // assume valid csv passed in - header removed
         for _, r := range rows </span><span class="cov8" title="1">{
                 cols := strings.Split(r, ",")
@@ -193,8 +194,8 @@ func (p *Parser) ParseCSV(rows []string) (*map[string]types.Entity, error) <span
                 }</span>
 
                 <span class="cov8" title="1">entity := types.Entity{
-                        Name: cols[0],
-                        Limit: limit,
+                        Name:     cols[0],
+                        Limit:    limit,
                         Utilised: utilised,
                 }
 
@@ -216,7 +217,8 @@ func (p *Parser) ParseCSV(rows []string) (*map[string]types.Entity, error) <span
 
         <span class="cov8" title="1">log.Debugf("Done CSV parsing - took %s", time.Since(start))
         return &amp;entities, nil</span>
-}</pre>
+}
+</pre>
 		
 		<pre class="file" id="file2" style="display: none">package processor
 
@@ -235,7 +237,7 @@ type Processor struct {
 
 func NewProcessor(parser parser.ParserManager, aggregator aggregator.AggregatorManager) *Processor <span class="cov8" title="1">{
         return &amp;Processor{
-                Parser: parser,
+                Parser:     parser,
                 Aggregator: aggregator,
         }
 }</span>
@@ -275,7 +277,7 @@ var Out io.Writer = os.Stdout
 
 func dfsRenderReportBreakdown(report *types.Report) bool <span class="cov8" title="1">{
         breached := false
-        if (report.Allocation &lt; report.Usage) </span><span class="cov8" title="1">{
+        if report.Allocation &lt; report.Usage </span><span class="cov8" title="1">{
                 breached = true
                 fmt.Fprintf(
                         Out,
@@ -283,7 +285,7 @@ func dfsRenderReportBreakdown(report *types.Report) bool <span class="cov8" titl
                         report.Name, report.Allocation, report.DirectUsage, report.Usage,
                 )
         }</span>
-        <span class="cov8" title="1">if (report.Allocation &lt; report.SubTotalLimit) </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">if report.Allocation &lt; report.SubTotalLimit </span><span class="cov8" title="1">{
                 fmt.Fprintf(
                         Out,
                         "  Warning for limit at %v (limit = %d, combined sub-entity limit = %d).\n",
@@ -303,16 +305,17 @@ func dfsRenderReportBreakdown(report *types.Report) bool <span class="cov8" titl
 
 func ViewGenerate(reports []*types.Report) <span class="cov8" title="1">{
         for i, report := range reports </span><span class="cov8" title="1">{
-                fmt.Fprintf(Out, "Entities: %v:\n", strings.Join(report.Entries, ","))
+                fmt.Fprintf(Out, "Entities: %v:\n", strings.Join(report.Entries, "/"))
                 breached := dfsRenderReportBreakdown(report)
-                if (!breached) </span><span class="cov8" title="1">{
+                if !breached </span><span class="cov8" title="1">{
                         fmt.Fprintf(Out, "  No limit breaches\n")
                 }</span>
-                <span class="cov8" title="1">if i != len(reports) -1 </span><span class="cov8" title="1">{
+                <span class="cov8" title="1">if i != len(reports)-1 </span><span class="cov8" title="1">{
                         fmt.Fprintln(Out)
                 }</span>
         }
-}</pre>
+}
+</pre>
 		
 		</div>
 	</body>

@@ -24,7 +24,7 @@ func main() {
 	if filename == "" {
 		die("clv: flag -f for input filename is required, abort\nRun 'clv -h' for usage.")
 	}
-	
+
 	if verbose {
 		log.SetLevel(log.DebugLevel)
 	}
@@ -52,12 +52,12 @@ func die(format string, args ...interface{}) {
 }
 
 func fileExists(name string) (bool, error) {
-    _, err := os.Stat(name)
-    if err == nil {
-        return true, nil
-    }
-    if errors.Is(err, os.ErrNotExist) {
-        return false, nil
-    }
-    return false, err
+	_, err := os.Stat(name)
+	if err == nil {
+		return true, nil
+	}
+	if errors.Is(err, os.ErrNotExist) {
+		return false, nil
+	}
+	return false, err
 }

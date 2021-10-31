@@ -27,11 +27,11 @@ func TestViewGenerate(t *testing.T) {
 			args: args{
 				[]*types.Report{
 					{
-						Name: "a",
-						Entries: []string{"a"},
+						Name:        "a",
+						Entries:     []string{"a"},
 						DirectUsage: 5,
-						Usage: 5,
-						Allocation: 10,
+						Usage:       5,
+						Allocation:  10,
 					},
 				},
 			},
@@ -42,11 +42,11 @@ func TestViewGenerate(t *testing.T) {
 			args: args{
 				[]*types.Report{
 					{
-						Name: "a",
-						Entries: []string{"a"},
+						Name:        "a",
+						Entries:     []string{"a"},
 						DirectUsage: 5,
-						Usage: 16,
-						Allocation: 10,
+						Usage:       16,
+						Allocation:  10,
 					},
 				},
 			},
@@ -57,11 +57,11 @@ func TestViewGenerate(t *testing.T) {
 			args: args{
 				[]*types.Report{
 					{
-						Name: "a",
-						Entries: []string{"a"},
-						DirectUsage: 5,
-						Usage: 5,
-						Allocation: 10,
+						Name:          "a",
+						Entries:       []string{"a"},
+						DirectUsage:   5,
+						Usage:         5,
+						Allocation:    10,
 						SubTotalLimit: 20,
 					},
 				},
@@ -73,18 +73,18 @@ func TestViewGenerate(t *testing.T) {
 			args: args{
 				[]*types.Report{
 					{
-						Name: "a",
-						Entries: []string{"a"},
+						Name:        "a",
+						Entries:     []string{"a"},
 						DirectUsage: 5,
-						Usage: 5,
-						Allocation: 10,
+						Usage:       5,
+						Allocation:  10,
 					},
 					{
-						Name: "b",
-						Entries: []string{"b"},
+						Name:        "b",
+						Entries:     []string{"b"},
 						DirectUsage: 5,
-						Usage: 5,
-						Allocation: 6,
+						Usage:       5,
+						Allocation:  6,
 					},
 				},
 			},
@@ -95,19 +95,19 @@ func TestViewGenerate(t *testing.T) {
 			args: args{
 				[]*types.Report{
 					{
-						Name: "a",
-						Entries: []string{"a", "b"},
-						DirectUsage: 5,
-						Usage: 14,
-						Allocation: 10,
+						Name:          "a",
+						Entries:       []string{"a", "b"},
+						DirectUsage:   5,
+						Usage:         14,
+						Allocation:    10,
 						SubTotalLimit: 3,
 						SubReports: []*types.Report{
 							{
-								Name: "b",
-								Entries: []string{"b"},
+								Name:        "b",
+								Entries:     []string{"b"},
 								DirectUsage: 9,
-								Usage: 9,
-								Allocation: 3,
+								Usage:       9,
+								Allocation:  3,
 							},
 						},
 					},
@@ -120,7 +120,7 @@ func TestViewGenerate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			bak := processor.Out
 			processor.Out = new(bytes.Buffer)
-			defer func () { processor.Out = bak }()
+			defer func() { processor.Out = bak }()
 			processor.ViewGenerate(tt.args.reports)
 			if got := processor.Out.(*bytes.Buffer).String(); got != tt.want {
 				t.Errorf("ViewGenerate() = %q, want %q", got, tt.want)

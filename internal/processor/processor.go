@@ -15,7 +15,7 @@ type Processor struct {
 
 func NewProcessor(parser parser.ParserManager, aggregator aggregator.AggregatorManager) *Processor {
 	return &Processor{
-		Parser: parser,
+		Parser:     parser,
 		Aggregator: aggregator,
 	}
 }

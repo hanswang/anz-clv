@@ -91,7 +91,7 @@ func TestProcessor_Run(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			f := fields{
-				parser: mocks.NewMockParserManager(ctrl),
+				parser:     mocks.NewMockParserManager(ctrl),
 				aggregator: mocks.NewMockAggregatorManager(ctrl),
 			}
 			if tt.prepare != nil {

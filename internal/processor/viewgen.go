@@ -13,7 +13,7 @@ var Out io.Writer = os.Stdout
 
 func dfsRenderReportBreakdown(report *types.Report) bool {
 	breached := false
-	if (report.Allocation < report.Usage) {
+	if report.Allocation < report.Usage {
 		breached = true
 		fmt.Fprintf(
 			Out,
@@ -21,7 +21,7 @@ func dfsRenderReportBreakdown(report *types.Report) bool {
 			report.Name, report.Allocation, report.DirectUsage, report.Usage,
 		)
 	}
-	if (report.Allocation < report.SubTotalLimit) {
+	if report.Allocation < report.SubTotalLimit {
 		fmt.Fprintf(
 			Out,
 			"  Warning for limit at %v (limit = %d, combined sub-entity limit = %d).\n",
@@ -43,10 +43,10 @@ func ViewGenerate(reports []*types.Report) {
 	for i, report := range reports {
 		fmt.Fprintf(Out, "Entities: %v:\n", strings.Join(report.Entries, "/"))
 		breached := dfsRenderReportBreakdown(report)
-		if (!breached) {
+		if !breached {
 			fmt.Fprintf(Out, "  No limit breaches\n")
 		}
-		if i != len(reports) -1 {
+		if i != len(reports)-1 {
 			fmt.Fprintln(Out)
 		}
 	}

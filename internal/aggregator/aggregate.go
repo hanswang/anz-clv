@@ -23,11 +23,11 @@ func dfsAggregateChildren(root *types.Report, entities *map[string][]types.Entit
 	}
 	for _, entity := range children {
 		report := &types.Report{
-			Name: entity.Name,
-			Entries: []string{entity.Name},
-			Allocation: entity.Limit,
+			Name:        entity.Name,
+			Entries:     []string{entity.Name},
+			Allocation:  entity.Limit,
 			DirectUsage: entity.Utilised,
-			Usage: entity.Utilised,
+			Usage:       entity.Utilised,
 		}
 		dfsAggregateChildren(report, entities)
 
@@ -44,16 +44,16 @@ func (a *Aggregator) GenerateReport(entities *map[string]types.Entity) []*types.
 	start := time.Now()
 	reps := []*types.Report{}
 	chdEntities := map[string][]types.Entity{}
-	
+
 	// find lead node & reverse child -> parent relation entity to parent -> children relation entity
 	for name, entity := range *entities {
 		if entity.Parent == nil {
 			r := &types.Report{
-				Name: entity.Name,
-				Entries: []string{entity.Name},
-				Allocation: entity.Limit,
+				Name:        entity.Name,
+				Entries:     []string{entity.Name},
+				Allocation:  entity.Limit,
 				DirectUsage: entity.Utilised,
-				Usage: entity.Utilised,
+				Usage:       entity.Utilised,
 			}
 			reps = append(reps, r)
 			delete(*entities, name)
